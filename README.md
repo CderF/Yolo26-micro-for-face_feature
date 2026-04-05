@@ -1,4 +1,7 @@
 # YOLO26-Micro: Customized Lightweight Architecture for Micro-expression Recognition in Online Learning
+
+>## **Languages:** [简体中文](README_zh.md) | [English](README.md)
+
 ## 📌 Motivation
 ### This project is a deep secondary development based on the experimental branch of Ultralytics YOLO26.
 
