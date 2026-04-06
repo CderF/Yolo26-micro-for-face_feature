@@ -1,11 +1,16 @@
 # YOLO26-Micro Custom Architecture for Facial Micro-Expression Detection
-# Author: Yolo Master
-# Goal: 抛弃 P5 ，引入 P2 (160x160) 超高分辨率，并融入 C2PSA 注意力机制
+"""
+  Goal: 
+    First step: 抛弃 P5 (防止模型提取过深，导致丢失面部细微特征细节)
+    Second step: 引入 P2 (160x160) 超高分辨率（提升对面部的整体认识）
+    Third step: 在P2层后强行插入C2PSA注意力机制（虽然会变成“单”头注意力，但是胜在提高了对面部的细微特征的抓取）
+"""
+#
 
 # 基础参数配置
-nc: 7               # 类别数 (后续根据你的微表情数据集修改，例如 7 种情绪就改成 7)
+nc: 7               # 类别数 (根据RAF-DB数据集)
 scales:              # 模型缩放比例 [depth, width, max_channels]
-  s: [0.33, 0.50, 1024] # 这里可以根据网课端侧设备的算力选择 n/s/m
+  s: [0.33, 0.50, 1024] # 由于强行在P2层插入了注意力机制，为保证通道数一致，只能选用s即深度为0.55
 end2end: True        # 开启端到端预测，干掉 NMS 后处理，降低推理延迟
 
 # Backbone (骨干网络) - 截断于 P4，深挖 P2
