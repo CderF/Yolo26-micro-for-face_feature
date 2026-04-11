@@ -3,7 +3,7 @@ import multiprocessing
 
 
 def train_emotion_model():
-    print("🔥 启动 YOLO 表情分类模型训练引擎...")
+    print("yolo表情分类模型开始训练...")
 
     # 1. 加载预训练模型作为起点 (Transfer Learning)
     local_weights_path = './weights/yolo26n-cls.pt'
