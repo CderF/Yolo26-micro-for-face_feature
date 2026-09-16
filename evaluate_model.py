@@ -97,7 +97,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="评估分类模型权重，计算F1等指标，便于横向对比不同训练结果")
     parser.add_argument("--weights", type=str, required=True, help="模型权重路径，例如 runs/classify/xxx/weights/best.pt")
     parser.add_argument("--data", type=str, default="datasets/rafdb_yolo", help="数据集根目录")
-    parser.add_argument("--split", type=str, default="val", choices=["val", "train"], help="评估用的子集")
+    parser.add_argument(
+        "--split", type=str, default="val", choices=["val", "train", "test"],
+        help="评估用的子集：val=训练期间用来挑best.pt的验证集；test=封存起来的RAF-DB官方test集，只在最终报告论文数字时用",
+    )
     parser.add_argument("--imgsz", type=int, default=128)
     parser.add_argument("--batch", type=int, default=64)
     parser.add_argument("--device", type=str, default="", help="留空自动选择 (CUDA > MPS > CPU)")
