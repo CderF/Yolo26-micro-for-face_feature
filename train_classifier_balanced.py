@@ -15,6 +15,7 @@
 """
 import multiprocessing
 import os
+import re
 from collections import Counter
 from pathlib import Path
 
@@ -32,6 +33,8 @@ USE_WEIGHTED_LOSS = True  # 类别加权 loss
 USE_OVERSAMPLING = False  # 过采样 (不建议和上面同时开)
 WEIGHT_MODE = "sqrt_inv"  # "sqrt_inv" (温和) 或 "inv" (力度更强，稀有类样本量差距很大时容易压过头)
 # ===============================================
+
+AUG_SUFFIX_RE = re.compile(r"_aug\d+$")  # augment_rare_classes.py 生成的合成图文件名后缀
 
 
 def compute_class_weights(counts: dict[int, int], mode: str = "sqrt_inv") -> torch.Tensor:
@@ -108,9 +111,17 @@ class BalancedClassificationTrainer(ClassificationTrainer):
         return loader
 
     def _train_class_counts(self) -> dict[int, int]:
+        """按类别的真实图数量算权重，排除 augment_rare_classes.py 生成的合成图 (_aug{N} 后缀)。
+        否则被离线增强过的 Fear/Disgust 在计数上反而不显得稀有 (它们已经被顶到1200/1500张)，
+        真正稀有的类 (增强脚本没碰过的 Anger) 反而被误判成权重最高的类，加权 loss 纠偏不到
+        我们真正想改善的 Fear/Disgust 身上。"""
         train_dir = Path(self.data["train"])
         names = self.data["names"]
-        return {i: len(list((train_dir / names[i]).glob("*"))) for i in names}
+        counts = {}
+        for i in names:
+            class_dir = train_dir / names[i]
+            counts[i] = sum(1 for p in class_dir.glob("*") if not AUG_SUFFIX_RE.search(p.stem))
+        return counts
 
 
 def train_emotion_model():
