@@ -140,7 +140,7 @@ def train_emotion_model():
         epochs=150,
         patience=30,
         imgsz=128,
-        batch=64,
+        batch=128,
         cache="ram",
         workers=8,
         device="",
