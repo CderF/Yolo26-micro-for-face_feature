@@ -54,7 +54,10 @@ class WeightedClassificationLoss:
 
     def __call__(self, preds, batch):
         preds = preds[1] if isinstance(preds, (list, tuple)) else preds
-        loss = F.cross_entropy(preds, batch["cls"], weight=self.weight.to(preds.device), reduction="mean")
+        # AMP 混合精度下 preds 可能是 float16，weight 必须转成同精度，否则 cross_entropy 报
+        # "expected scalar type Half but found Float"
+        weight = self.weight.to(device=preds.device, dtype=preds.dtype)
+        loss = F.cross_entropy(preds, batch["cls"], weight=weight, reduction="mean")
         return loss, loss.detach()
 
 
